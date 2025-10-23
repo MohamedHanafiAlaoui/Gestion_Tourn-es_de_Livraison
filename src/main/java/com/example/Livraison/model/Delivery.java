@@ -22,8 +22,13 @@ public class Delivery {
     private String adresse;
     private double gpsLat;
     private double gpsLon;
-    private double volumem3;
+    private double poidsKg;
+    private double volumeM3;
     private String creneauPref;
+    @Enumerated(EnumType.STRING)
     private Status status;
+    @ManyToOne
+    @JoinColumn(name = "tour_id")
+    private Tour tour;
 
 }

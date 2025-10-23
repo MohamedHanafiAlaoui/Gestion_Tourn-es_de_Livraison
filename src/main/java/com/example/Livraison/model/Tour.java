@@ -23,9 +23,16 @@ public class Tour {
     @Temporal(TemporalType.DATE)
     private Date date;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private long vehicule_id ;
-    private List<Delivery> vehicule;
+    @ManyToOne
+    @JoinColumn(name = "vehicule_id")
+    private Vehicule vehicules;
+
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
+
+    @OneToMany(mappedBy = "tour")
+    private List<Delivery> deliveries;
 
 
 

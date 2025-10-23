@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
-
+import java.util.List;
 
 
 @Data
@@ -30,6 +30,8 @@ public class Vehicule {
     @Temporal(TemporalType.DATE)
 
     private Date dateAjout;
+    @OneToMany(mappedBy = "vehicule")
+    private List<Tour> tours;
 
 
     public Vehicule  toModels(VehiculeDTO DTO)
