@@ -1,5 +1,8 @@
 package com.example.Livraison.model;
 
+import com.example.Livraison.dto.VehiculeDTO;
+import com.example.Livraison.model.enums.EtatVehicule;
+import com.example.Livraison.model.enums.TypeVehicule;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,12 +20,27 @@ public class Vehicule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String type;
+    @Enumerated(EnumType.STRING)
+
+    private TypeVehicule type;
     private  double capaciteMaxKg;
     private  double capaciteMaxM3;
-    private  String etat;
-    //@Temporal(TemporalType.DATE)
+    @Enumerated(EnumType.STRING)
+    private EtatVehicule etat;
     @Temporal(TemporalType.DATE)
 
     private Date dateAjout;
+
+
+    public Vehicule  toModels(VehiculeDTO DTO)
+    {
+        return  Vehicule.builder()
+                .id(DTO.getId())
+                .type(DTO.getType())
+                .capaciteMaxKg(DTO.getCapaciteMaxKg())
+                .capaciteMaxM3(DTO.getCapaciteMaxM3())
+                .etat(DTO.getEtat())
+                .dateAjout(DTO.getDateAjout())
+                .build();
+    }
 }
