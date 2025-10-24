@@ -1,6 +1,7 @@
 package com.example.Livraison.model;
 
 
+import com.example.Livraison.dto.DeliveryDTO;
 import com.example.Livraison.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,5 +31,21 @@ public class Delivery {
     @ManyToOne
     @JoinColumn(name = "tour_id")
     private Tour tour;
+
+    public Delivery toModels(DeliveryDTO deliveryDTO)
+    {
+        return Delivery
+                .builder()
+                .id(deliveryDTO.getId())
+                .adresse(deliveryDTO.getAdresse())
+                .gpsLat(deliveryDTO.getGpsLat())
+                .gpsLon(deliveryDTO.getGpsLon())
+                .poidsKg(deliveryDTO.getPoidsKg())
+                .volumeM3(deliveryDTO.getVolumeM3())
+                .creneauPref(deliveryDTO.getCreneauPref())
+                .status(deliveryDTO.getStatus())
+                .tour(deliveryDTO.getTour())
+                .build();
+    }
 
 }
