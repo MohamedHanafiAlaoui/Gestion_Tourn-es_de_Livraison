@@ -1,6 +1,7 @@
 package com.example.Livraison.model;
 
 
+import com.example.Livraison.dto.WarehouseDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,5 +27,20 @@ public class Warehouse {
     private String horaireFermeture;
     @OneToMany(mappedBy = "warehouse")
     private List<Tour> tours;
+
+
+    public  Warehouse toModels(WarehouseDTO warehouseDTO)
+    {
+        return
+                Warehouse.builder()
+                        .id(warehouseDTO.getId())
+                        .adresse(warehouseDTO.getAdresse())
+                        .gpsLat(warehouseDTO.getGpsLat())
+                        .gpsLong(warehouseDTO.getGpsLong())
+                        .horaireFermeture(warehouseDTO.getHoraireFermeture())
+                        .horaireOuverture(warehouseDTO.getHoraireOuverture())
+                        .tours(warehouseDTO.getTours())
+                        .build();
+    }
 
 }
