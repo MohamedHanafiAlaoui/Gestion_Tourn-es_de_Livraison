@@ -1,5 +1,6 @@
 package com.example.Livraison.model;
 
+import com.example.Livraison.dto.TourDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +35,18 @@ public class Tour {
     @OneToMany(mappedBy = "tour")
     private List<Delivery> deliveries;
 
+
+    public Tour  toModel(TourDTO tourDTO)
+    {
+        return Tour.builder()
+                .id(tourDTO.getId())
+                .date(tourDTO.getDate())
+                .vehicule(tourDTO.getVehicule())
+                .warehouse(tourDTO.getWarehouse())
+                .deliveries(tourDTO.getDeliveries())
+                .build();
+
+    }
 
 
 
