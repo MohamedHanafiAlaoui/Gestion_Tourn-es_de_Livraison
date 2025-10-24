@@ -30,7 +30,7 @@ public class Vehicule {
     @Temporal(TemporalType.DATE)
 
     private Date dateAjout;
-    @OneToMany(mappedBy = "vehicule")
+    @OneToMany(mappedBy = "vehicule",cascade = CascadeType.ALL)
     private List<Tour> tours;
 
 

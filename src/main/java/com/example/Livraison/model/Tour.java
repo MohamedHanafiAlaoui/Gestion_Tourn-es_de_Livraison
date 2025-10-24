@@ -25,7 +25,7 @@ public class Tour {
 
     @ManyToOne
     @JoinColumn(name = "vehicule_id")
-    private Vehicule vehicules;
+    private Vehicule vehicule;
 
     @ManyToOne
     @JoinColumn(name = "warehouse_id")
