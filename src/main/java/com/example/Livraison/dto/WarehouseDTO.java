@@ -22,10 +22,9 @@ public class WarehouseDTO {
     private double gpsLong;
     private String horaireOuverture;
     private String horaireFermeture;
-    private List<Tour> tours;
+    private List<Long> tourIds;
 
-
-    public  static WarehouseDTO fromEntityToDto(Warehouse warehouse){
+    public  static WarehouseDTO fromEntity(Warehouse warehouse){
         return WarehouseDTO
                 .builder()
                 .id(warehouse.getId())
@@ -33,7 +32,11 @@ public class WarehouseDTO {
                 .gpsLat(warehouse.getGpsLat())
                 .gpsLong(warehouse.getGpsLong())
                 .horaireOuverture(warehouse.getHoraireOuverture())
-                .tours(warehouse.getTours())
+                .tourIds(  warehouse.getTours() != null
+                        ? warehouse.getTours().stream()
+                        .map(Tour::getId)
+                        .toList()
+                        : null)
                 .build();
     }
 

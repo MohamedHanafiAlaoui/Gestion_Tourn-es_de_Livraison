@@ -1,6 +1,7 @@
 package com.example.Livraison.model;
 
 import com.example.Livraison.dto.TourDTO;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,18 +33,17 @@ public class Tour {
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
 
-    @OneToMany(mappedBy = "tour")
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
+
     private List<Delivery> deliveries;
 
-
-    public Tour  toModel(TourDTO tourDTO)
+    public static Tour  fromDTO(TourDTO tourDTO)
     {
         return Tour.builder()
                 .id(tourDTO.getId())
                 .date(tourDTO.getDate())
-                .vehicule(tourDTO.getVehicule())
-                .warehouse(tourDTO.getWarehouse())
-                .deliveries(tourDTO.getDeliveries())
+                .vehicule(tourDTO.getVehiculeId() != null ? Vehicule.builder().id(tourDTO.getVehiculeId()).build() : null)
+                .warehouse(tourDTO.getWarehouseId() != null ? Warehouse.builder().id(tourDTO.getWarehouseId()).build() : null)
                 .build();
 
     }

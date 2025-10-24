@@ -21,18 +21,27 @@ import java.util.List;
 public class TourDTO {
     private Long id;
     private Date date;
-    private Vehicule vehicule;
-    private Warehouse warehouse;
-    private List<Delivery> deliveries;
+    private Long vehiculeId;
+    private Long warehouseId;
+    private List<Long> deliveryIds;
 
-    public static  TourDTO tourDTO(Tour tour)
+    public static  TourDTO fromEntity(Tour tour)
     {
         return TourDTO.builder()
                 .id(tour.getId())
                 .date(tour.getDate())
-                .vehicule(tour.getVehicule())
-                .warehouse(tour.getWarehouse())
-                .deliveries(tour.getDeliveries())
+                .vehiculeId(tour.getVehicule() != null ? tour.getVehicule().getId() : null)
+                .warehouseId(tour.getWarehouse() != null ? tour.getWarehouse().getId() : null)
+                .deliveryIds(
+                        tour.getDeliveries() != null
+                                ? tour.getDeliveries().stream()
+                                .map(Delivery::getId)
+                                .toList()
+                                : null
+                )
+
                 .build();
     }
+
+
 }

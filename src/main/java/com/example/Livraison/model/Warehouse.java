@@ -25,11 +25,11 @@ public class Warehouse {
     private double gpsLong;
     private String horaireOuverture;
     private String horaireFermeture;
-    @OneToMany(mappedBy = "warehouse")
+    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
     private List<Tour> tours;
 
 
-    public  Warehouse toModels(WarehouseDTO warehouseDTO)
+    public static Warehouse fromDTO(WarehouseDTO warehouseDTO)
     {
         return
                 Warehouse.builder()
@@ -39,7 +39,6 @@ public class Warehouse {
                         .gpsLong(warehouseDTO.getGpsLong())
                         .horaireFermeture(warehouseDTO.getHoraireFermeture())
                         .horaireOuverture(warehouseDTO.getHoraireOuverture())
-                        .tours(warehouseDTO.getTours())
                         .build();
     }
 
