@@ -25,7 +25,7 @@ public class DeliveryDTO {
     private double volumeM3;
     private String creneauPref;
     private Status status;
-    private Tour tour;
+    private Long tourId;
 
     public  static DeliveryDTO  ToDelivery  (Delivery delivery)
     {
@@ -39,7 +39,7 @@ public class DeliveryDTO {
                 .volumeM3(delivery.getVolumeM3())
                 .creneauPref(delivery.getCreneauPref())
                 .status(delivery.getStatus())
-                .tour(delivery.getTour())
+                .tourId(delivery.getTour() != null ? delivery.getTour().getId() : null)
                 .build();
 
     }

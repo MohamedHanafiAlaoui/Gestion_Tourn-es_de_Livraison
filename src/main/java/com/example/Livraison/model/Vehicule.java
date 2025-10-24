@@ -34,7 +34,7 @@ public class Vehicule {
     private List<Tour> tours;
 
 
-    public Vehicule  toModels(VehiculeDTO DTO)
+    public Vehicule  fromDTO(VehiculeDTO DTO)
     {
         return  Vehicule.builder()
                 .id(DTO.getId())
