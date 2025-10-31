@@ -1,6 +1,7 @@
 package com.example.Livraison.model;
 
 import com.example.Livraison.dto.TourDTO;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,22 +32,13 @@ public class Tour {
 
     @ManyToOne
     @JoinColumn(name = "warehouse_id")
+    @JsonBackReference
     private Warehouse warehouse;
 
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
-
+    @JsonManagedReference
     private List<Delivery> deliveries;
 
-    public static Tour  fromDTO(TourDTO tourDTO)
-    {
-        return Tour.builder()
-                .id(tourDTO.getId())
-                .date(tourDTO.getDate())
-                .vehicule(tourDTO.getVehiculeId() != null ? Vehicule.builder().id(tourDTO.getVehiculeId()).build() : null)
-                .warehouse(tourDTO.getWarehouseId() != null ? Warehouse.builder().id(tourDTO.getWarehouseId()).build() : null)
-                .build();
-
-    }
 
 
 

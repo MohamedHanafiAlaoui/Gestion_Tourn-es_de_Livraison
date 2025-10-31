@@ -3,6 +3,7 @@ package com.example.Livraison.model;
 import com.example.Livraison.dto.DeliveryDTO;
 import com.example.Livraison.model.enums.Status;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,8 +22,14 @@ public class Delivery {
     private String adresse;
     private double gpsLat;
     private double gpsLon;
+    @Column(name = "poids_kg")
+
     private double poidsKg;
+    @Column(name = "volume_m3")
+
     private double volumeM3;
+    @Column(name = "creneau_pref")
+
     private String creneauPref;
 
     @Enumerated(EnumType.STRING)
@@ -30,19 +37,8 @@ public class Delivery {
 
     @ManyToOne
     @JoinColumn(name = "tour_id")
+    @JsonBackReference
     private Tour tour;
 
-    public static Delivery fromDTO(DeliveryDTO dto) {
-        return Delivery.builder()
-                .id(dto.getId())
-                .adresse(dto.getAdresse())
-                .gpsLat(dto.getGpsLat())
-                .gpsLon(dto.getGpsLon())
-                .poidsKg(dto.getPoidsKg())
-                .volumeM3(dto.getVolumeM3())
-                .creneauPref(dto.getCreneauPref())
-                .status(dto.getStatus())
-                .tour(dto.getTourId() != null ? Tour.builder().id(dto.getTourId()).build() : null)
-                .build();
-    }
+
 }
