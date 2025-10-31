@@ -3,10 +3,7 @@ package com.example.Livraison.dto;
 import com.example.Livraison.model.Vehicule;
 import com.example.Livraison.model.enums.EtatVehicule;
 import com.example.Livraison.model.enums.TypeVehicule;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,10 +25,10 @@ public class VehiculeDTO {
     private EtatVehicule etat;
     private Date dateAjout;
 
-    public static VehiculeDTO fromEntityToDto(Vehicule vehicule)
-    {
-        return VehiculeDTO
-                .builder()
+
+    public static VehiculeDTO toDto(Vehicule vehicule) {
+        if (vehicule == null) throw new IllegalArgumentException("Vehicule cannot be null");
+        return VehiculeDTO.builder()
                 .id(vehicule.getId())
                 .type(vehicule.getType())
                 .capaciteMaxKg(vehicule.getCapaciteMaxKg())
@@ -40,6 +37,7 @@ public class VehiculeDTO {
                 .dateAjout(vehicule.getDateAjout())
                 .build();
     }
+
 
 
 

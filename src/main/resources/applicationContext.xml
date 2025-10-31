@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        https://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/data/jpa
+        https://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:database.properties"/>
+    </bean>
+    <jpa:repositories base-package="com.example.Livraison.dao.Repository"/>
+
+
+    <bean id="vehiculeService" class="com.example.Livraison.service.VehiculeService">
+    </bean>
+
+    <bean id="deliveryService" class="com.example.Livraison.service.DeliveryService">
+    </bean>
+
+    <bean id="tourService" class="com.example.Livraison.service.TourService">
+    </bean>
+
+    <bean id="warehouseService" class="com.example.Livraison.service.WarehouseService">
+    </bean>
+
+
+
+    <bean id="clarkeWrightOptimizer" class="com.example.Livraison.service.ClarkeWrightOptimizer">
+    </bean>
+
+
+
+
+
+
+</beans>

@@ -29,17 +29,5 @@ public class Warehouse {
     private List<Tour> tours;
 
 
-    public static Warehouse fromDTO(WarehouseDTO warehouseDTO)
-    {
-        return
-                Warehouse.builder()
-                        .id(warehouseDTO.getId())
-                        .adresse(warehouseDTO.getAdresse())
-                        .gpsLat(warehouseDTO.getGpsLat())
-                        .gpsLong(warehouseDTO.getGpsLong())
-                        .horaireFermeture(warehouseDTO.getHoraireFermeture())
-                        .horaireOuverture(warehouseDTO.getHoraireOuverture())
-                        .build();
-    }
 
 }
