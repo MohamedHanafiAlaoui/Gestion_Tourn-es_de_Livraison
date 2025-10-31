@@ -25,7 +25,7 @@ public class TourDTO {
     private Long warehouseId;
     private List<Long> deliveryIds;
 
-    public static  TourDTO fromEntity(Tour tour)
+    public static  TourDTO toDto(Tour tour)
     {
         return TourDTO.builder()
                 .id(tour.getId())
