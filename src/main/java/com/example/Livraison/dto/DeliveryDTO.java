@@ -27,7 +27,7 @@ public class DeliveryDTO {
     private Status status;
     private Long tourId;
 
-    public  static DeliveryDTO  ToDelivery  (Delivery delivery)
+    public  static DeliveryDTO  toDto  (Delivery delivery)
     {
         return DeliveryDTO
                 .builder()
