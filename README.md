@@ -15,6 +15,7 @@ Application Spring Boot (Java 17, Maven) pour gérer les tournées de livraison,
 - **Endpoints clés (exemple)**
 - **Tests**
 - **Déploiement**
+- **Screenshots**
 
 ## Aperçu
 
@@ -144,6 +145,15 @@ Le packaging est **WAR** avec Tomcat en `provided`. Pour un déploiement classiq
 - Déployer le WAR généré (`target/Livraison-0.0.1-SNAPSHOT.war`) sur un conteneur **Tomcat** externe compatible.
 - Pour l’exécution locale en dev, privilégier `mvn spring-boot:run`.
 
+## Screenshots
+
+Ajoutez des captures d'écran du projet dans le dossier `docs/screenshots` et référez-les depuis le README. Exemple pour ajouter la "parte screen shot" :
+
+![Parte screen shot](docs/screenshots/partescreen.png)
+
+- Placez votre image sous : `c:\Users\Youco\Desktop\Livraison\docs\screenshots\partescreen.png`
+- Formats recommandés : PNG ou JPG.
+- Si vous avez plusieurs captures, nommez-les clairement (ex: `parte-overview.png`, `parte-detail.png`) et ajoutez-les ici de la même façon.
+
 ---
 
-Si vous souhaitez une version en anglais du README ou ajouter des captures d’écran/diagrammes d’architecture, indiquez-le et je l’ajoute.
