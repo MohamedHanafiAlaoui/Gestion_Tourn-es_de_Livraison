@@ -147,13 +147,12 @@ Le packaging est **WAR** avec Tomcat en `provided`. Pour un déploiement classiq
 
 ## Screenshots
 
-Ajoutez des captures d'écran du projet dans le dossier `docs/screenshots` et référez-les depuis le README. Exemple pour ajouter la "parte screen shot" :
+<img width="1909" height="900" alt="image" src="https://github.com/user-attachments/assets/66664bc9-d748-4bbe-87bb-2e9f88955d93" />
 
-![Parte screen shot](docs/screenshots/partescreen.png)
+<img width="1878" height="852" alt="image" src="https://github.com/user-attachments/assets/d59d28d4-4b2b-4dec-966c-e75a33e91928" />
 
-- Placez votre image sous : `c:\Users\Youco\Desktop\Livraison\docs\screenshots\partescreen.png`
-- Formats recommandés : PNG ou JPG.
-- Si vous avez plusieurs captures, nommez-les clairement (ex: `parte-overview.png`, `parte-detail.png`) et ajoutez-les ici de la même façon.
 
----
+<img width="1073" height="793" alt="image" src="https://github.com/user-attachments/assets/8af4eb48-f1b0-41da-b6a3-336fe305b297" />
+
+
 
