@@ -42,4 +42,17 @@ public class VehiculeController {
         vehiculeService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/Type")
+    public ResponseEntity<List<VehiculeDTO>> findByTypeSortWeight()
+    {
+        return ResponseEntity.ok(vehiculeService.findByTypeSortWeight());
+    }
+
+    @GetMapping("/Types")
+    public ResponseEntity<List<VehiculeDTO>> findByType()
+    {
+        return ResponseEntity.ok(vehiculeService.findByType());
+    }
+
 }

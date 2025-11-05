@@ -4,14 +4,19 @@ import com.example.Livraison.dao.Repository.DeliveryRepository;
 import com.example.Livraison.dto.DeliveryDTO;
 import com.example.Livraison.mapper.DeliveryMapper;
 import com.example.Livraison.model.Delivery;
+import com.example.Livraison.model.enums.EtatVehicule;
 import com.example.Livraison.model.enums.Status;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DeliveryService {
 
     private final DeliveryRepository deliveryRepository;
+
 
     public   DeliveryService(DeliveryRepository    deliveryRepository)
     {
@@ -70,6 +75,9 @@ public class DeliveryService {
         }
         deliveryRepository.deleteById(id);
     }
+
+
+
 
 
 }

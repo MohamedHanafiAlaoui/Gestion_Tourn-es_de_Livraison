@@ -4,7 +4,9 @@ import com.example.Livraison.dao.Repository.VehiculeRepository;
 import com.example.Livraison.dto.VehiculeDTO;
 import com.example.Livraison.mapper.VehiculeMapper;
 import com.example.Livraison.model.Vehicule;
+import com.example.Livraison.model.enums.EtatVehicule;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,6 +63,24 @@ public class VehiculeService {
         }
         vehcrepository.deleteById(id);
     }
+
+    public  List<VehiculeDTO> findByTypeSortWeight()
+    {
+        List<Vehicule>  vehicules = vehcrepository.findVehiculeByCapaciteMaxKg();
+
+        return vehicules.stream().map(VehiculeDTO::toDto)
+            .collect(Collectors.toList());
+    }
+
+
+    public  List<VehiculeDTO> findByType()
+    {
+        List<Vehicule>  vehicules = vehcrepository.findByOrderByCapaciteMaxKg();
+
+        return vehicules.stream().map(VehiculeDTO::toDto).collect(Collectors.toList());
+    }
+
+
 
 
 }

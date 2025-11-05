@@ -12,9 +12,9 @@ VALUES ('Fès',  34.0333, -5.0000, '08:00', '18:00');
 INSERT INTO delivery (adresse, creneau_pref, gps_lat, gps_lon, poids_kg, volume_m3, status)
 VALUES
     ('Rabat', 'MATIN', 34.0209, -6.8416, 120, 1.2, 'PENDING'),
+    ('Fès', 'APRES_MIDI', 34.0333, -5.0000, 300, 3.1, 'PENDING'),
     ('Tanger', 'SOIR', 35.7595, -5.8339, 90, 0.9, 'PENDING'),
     ('Marrakech', 'MATIN', 31.6295, -7.9811, 180, 1.6, 'PENDING'),
-    ('Fès', 'APRES_MIDI', 34.0333, -5.0000, 300, 3.1, 'PENDING'),
     ('Casablanca', 'APRES_MIDI', 33.5731, -7.5898, 250, 2.8, 'PENDING');
 
 INSERT INTO delivery (adresse, creneau_pref, gps_lat, gps_lon, poids_kg, volume_m3, status)

@@ -26,8 +26,7 @@
     <bean id="deliveryService" class="com.example.Livraison.service.DeliveryService">
     </bean>
 
-    <bean id="tourService" class="com.example.Livraison.service.TourService">
-    </bean>
+
 
     <bean id="warehouseService" class="com.example.Livraison.service.WarehouseService">
     </bean>
@@ -36,6 +35,15 @@
 
     <bean id="clarkeWrightOptimizer" class="com.example.Livraison.service.ClarkeWrightOptimizer">
     </bean>
+    <bean id="nearestNighbour" class="com.example.Livraison.service.NearestNeighborOptimizer">
+    </bean>
+
+
+    <bean id="tourService" class="com.example.Livraison.service.TourService">
+        <constructor-arg ref="clarkeWrightOptimizer" />
+    </bean>
+
+
 
 
 

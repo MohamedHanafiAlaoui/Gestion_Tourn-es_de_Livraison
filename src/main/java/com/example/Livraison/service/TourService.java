@@ -13,12 +13,14 @@ import com.example.Livraison.model.Vehicule;
 import com.example.Livraison.model.Warehouse;
 import com.example.Livraison.model.enums.EtatVehicule;
 import com.example.Livraison.model.enums.TypeVehicule;
+import com.example.Livraison.model.enums.Status;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 
 public class TourService {
 
@@ -27,6 +29,7 @@ public class TourService {
     private final VehiculeRepository vehiculeRepository;
     private final TourOptimizer tourOptimizer;
     private final WarehouseRepository warehouseRepository;
+
     private static final Logger LOG = LoggerFactory.getLogger(TourService.class);
 
     public TourService(TourRepository tourRepository,
@@ -39,10 +42,19 @@ public class TourService {
         this.vehiculeRepository = vehiculeRepository;
         this.tourOptimizer = tourOptimizer;
         this.warehouseRepository = warehouseRepository;
+
     }
 
     public List<TourDTO> findAll() {
-        return tourRepository.findAll()
+        return findAll("id", "asc");
+    }
+
+    public List<TourDTO> findAll(String sortBy, String direction) {
+        String safeSortBy = (sortBy == null || sortBy.isBlank()) ? "id" : sortBy;
+        Sort sort = (direction != null && direction.equalsIgnoreCase("desc"))
+                ? Sort.by(Sort.Order.desc(safeSortBy))
+                : Sort.by(Sort.Order.asc(safeSortBy));
+        return tourRepository.findAll(sort)
                 .stream()
                 .map(TourMapper::toDto)
                 .collect(Collectors.toList());
@@ -98,6 +110,7 @@ public class TourService {
                     throw new IllegalStateException("A delivery is already assigned to a tour and cannot be reassigned");
                 }
                 d.setTour(entity);
+                d.setStatus(Status.ASSIGNED);
             }
 
             entity.setDeliveries(deliveries);
@@ -124,6 +137,60 @@ public class TourService {
         }
     }
 
+    @Transactional
+    public TourDTO start(long tourId) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new IllegalStateException("Tour not found"));
+
+        if (tour.getDeliveries() == null || tour.getDeliveries().isEmpty()) {
+            throw new IllegalStateException("Cannot start a tour without deliveries");
+        }
+
+        for (Delivery d : tour.getDeliveries()) {
+            if (d.getStatus() == Status.ASSIGNED || d.getStatus() == Status.PENDING) {
+                d.setStatus(Status.IN_TRANSIT);
+            }
+        }
+        deliveryRepository.saveAll(tour.getDeliveries());
+        return TourMapper.toDto(tour);
+    }
+
+    @Transactional
+    public TourDTO complete(long tourId) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new IllegalStateException("Tour not found"));
+
+        if (tour.getDeliveries() != null) {
+            for (Delivery d : tour.getDeliveries()) {
+                if (d.getStatus() == Status.IN_TRANSIT || d.getStatus() == Status.ASSIGNED) {
+                    d.setStatus(Status.DELIVERED);
+                }
+            }
+            deliveryRepository.saveAll(tour.getDeliveries());
+        }
+        return TourMapper.toDto(tour);
+    }
+
+    @Transactional
+    public TourDTO cancel(long tourId) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new IllegalStateException("Tour not found"));
+
+        if (tour.getDeliveries() != null) {
+            for (Delivery d : tour.getDeliveries()) {
+                if (d.getStatus() != Status.DELIVERED) {
+                    d.setStatus(Status.PENDING);
+                    d.setTour(null);
+                }
+            }
+            deliveryRepository.saveAll(tour.getDeliveries());
+            tour.setDeliveries(
+                    tour.getDeliveries().stream().filter(del -> del.getTour() != null).collect(Collectors.toList())
+            );
+        }
+        return TourMapper.toDto(tour);
+    }
+
     public List<DeliveryDTO> getOptimizedTour(long tourId) {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new IllegalStateException("Tour not found"));
@@ -132,70 +199,76 @@ public class TourService {
             throw new IllegalStateException("Tour must have a Warehouse for optimization");
         }
 
+        if (tour.getDeliveries() == null || tour.getDeliveries().isEmpty()) {
+            LOG.warn("Optimize tour id={} has no deliveries; returning empty route", tourId);
+            return Collections.emptyList();
+        }
+
         LOG.info("Optimize tour id={} from warehouse lat={}, lon={}, vehiculeType={}", tourId,
                 tour.getWarehouse().getGpsLat(), tour.getWarehouse().getGpsLong(),
                 tour.getVehicule() != null ? tour.getVehicule().getType() : null);
 
         List<Delivery> distinctDeliveries = tour.getDeliveries()
                 .stream()
-                .filter(d -> d.getId() != null)
+                .filter(d -> d != null && d.getId() != null)
                 .collect(Collectors.collectingAndThen(
                         Collectors.toMap(Delivery::getId, d -> d, (a, b) -> a),
-                        m -> new java.util.ArrayList<>(m.values())
+                        m -> new ArrayList<>(m.values())
                 ));
+
+        if (distinctDeliveries.isEmpty()) {
+            LOG.warn("Optimize tour id={} has no valid deliveries with IDs; returning empty route", tourId);
+            return Collections.emptyList();
+        }
 
         LOG.info("Input deliveries (distinct) count={} ids={}",
                 distinctDeliveries.size(),
-                distinctDeliveries.stream().map(Delivery::getId).collect(java.util.stream.Collectors.toList()));
+                distinctDeliveries.stream().map(Delivery::getId).collect(Collectors.toList()));
+
+        LOG.info("Input deliveries coords={} ",
+                distinctDeliveries.stream()
+                        .map(d -> String.format("%d:(%f,%f)", d.getId(), d.getGpsLat(), d.getGpsLon()))
+                        .collect(Collectors.toList()));
 
         List<Delivery> optimized;
-        boolean hasWarehouse = tour.getWarehouse() != null;
-        if (hasWarehouse) {
-            // GPS-only nearest neighbor starting from warehouse
-            double curLat = tour.getWarehouse().getGpsLat();
-            double curLon = tour.getWarehouse().getGpsLong();
 
-            java.util.List<Delivery> remaining = new java.util.ArrayList<>(distinctDeliveries);
-            java.util.List<Delivery> ordered = new java.util.ArrayList<>();
-            while (!remaining.isEmpty()) {
-                Delivery nearest = null;
-                double minDist = Double.MAX_VALUE;
-                for (Delivery d : remaining) {
-                    double dx = curLat - d.getGpsLat();
-                    double dy = curLon - d.getGpsLon();
-                    double dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < minDist) { minDist = dist; nearest = d; }
-                }
-                ordered.add(nearest);
-                curLat = nearest.getGpsLat();
-                curLon = nearest.getGpsLon();
-                remaining.remove(nearest);
-            }
-            optimized = ordered;
-        } else {
-            // Fallback when no warehouse: keep previous vehicle-based behavior
-            if (tour.getVehicule() != null && tour.getVehicule().getType() == TypeVehicule.CAMION) {
-                optimized = new ClarkeWrightOptimizer().calculateOptimalTour(
-                        distinctDeliveries,
-                        tour.getVehicule()
-                );
-            } else {
-                optimized = new NearestNeighborOptimizer().calculateOptimalTour(
-                        distinctDeliveries,
-                        tour.getVehicule()
-                );
-            }
+        final Delivery depot = Delivery.builder()
+                .gpsLat(tour.getWarehouse().getGpsLat())
+                .gpsLon(tour.getWarehouse().getGpsLong())
+                .build();
+
+        List<Delivery> input = new ArrayList<>(distinctDeliveries);
+        List<Delivery> withDepot = new ArrayList<>();
+        withDepot.add(depot);
+        withDepot.addAll(input);
+        input = withDepot;
+
+
+        optimized = tourOptimizer.calculateOptimalTour(
+                input,
+                tour.getVehicule()
+        );
+
+
+
+        if (depot != null) {
+            optimized = optimized.stream()
+                    .filter(d -> d != depot)
+                    .collect(Collectors.toList());
         }
 
+
+
         LOG.info("Optimized order ids={}", optimized.stream().map(Delivery::getId)
-                .collect(java.util.stream.Collectors.toList()));
+                .collect(Collectors.toList()));
+        LOG.info("Optimized order coords={}", optimized.stream()
+                .map(d -> d.getId() != null ? String.format("%d:(%f,%f)", d.getId(), d.getGpsLat(), d.getGpsLon()) : String.format("null:(%f,%f)", d.getGpsLat(), d.getGpsLon()))
+                .collect(Collectors.toList()));
 
         return optimized.stream()
-                .map(DeliveryDTO::toDto)
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toMap(DeliveryDTO::getId, d -> d, (a, b) -> a),
-                        m -> new java.util.ArrayList<>(m.values())
-                ));
+        .map(DeliveryDTO::toDto)
+        .collect(Collectors.toList());
+
     }
 
     public double getTotalDistance(long tourId) {
@@ -212,81 +285,31 @@ public class TourService {
                 .filter(d -> d.getId() != null)
                 .collect(Collectors.collectingAndThen(
                         Collectors.toMap(Delivery::getId, d -> d, (a, b) -> a),
-                        m -> new java.util.ArrayList<>(m.values())
+                        m -> new ArrayList<>(m.values())
                 ));
 
-        // Determine the same ordering as in getOptimizedTour
         List<Delivery> ordered;
-        if (tour.getVehicule() != null && tour.getVehicule().getType() == TypeVehicule.CAMION) {
-            if (hasWarehouse) {
-                Delivery depot = Delivery.builder()
-                        .gpsLat(tour.getWarehouse().getGpsLat())
-                        .gpsLon(tour.getWarehouse().getGpsLong())
-                        .build();
-                java.util.List<Delivery> withDepot = new java.util.ArrayList<>();
-                withDepot.add(depot);
-                withDepot.addAll(distinctDeliveries);
-                java.util.List<Delivery> routed = new ClarkeWrightOptimizer().calculateOptimalTour(
-                        withDepot,
-                        tour.getVehicule()
-                );
-                ordered = routed.stream()
-                        .filter(d -> d.getId() != null)
-                        .collect(java.util.stream.Collectors.toList());
-            } else {
-                ordered = new ClarkeWrightOptimizer().calculateOptimalTour(
-                        distinctDeliveries,
-                        tour.getVehicule()
-                );
-            }
-        } else {
-            if (hasWarehouse) {
-                java.util.List<Delivery> remaining = new java.util.ArrayList<>(distinctDeliveries);
-                java.util.List<Delivery> temp = new java.util.ArrayList<>();
-                double curLat = tour.getWarehouse().getGpsLat();
-                double curLon = tour.getWarehouse().getGpsLong();
-                while (!remaining.isEmpty()) {
-                    Delivery nearest = null;
-                    double minDist = Double.MAX_VALUE;
-                    for (Delivery d : remaining) {
-                        double dx = curLat - d.getGpsLat();
-                        double dy = curLon - d.getGpsLon();
-                        double dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < minDist) { minDist = dist; nearest = d; }
-                    }
-                    temp.add(nearest);
-                    curLat = nearest.getGpsLat();
-                    curLon = nearest.getGpsLon();
-                    remaining.remove(nearest);
-                }
-                ordered = temp;
-            } else {
-                ordered = new NearestNeighborOptimizer().calculateOptimalTour(
-                        distinctDeliveries,
-                        tour.getVehicule()
-                );
-            }
-        }
 
-        // Compute distance Warehouse -> D1 -> ... -> Warehouse if warehouse exists
+            ordered = tourOptimizer.calculateOptimalTour(
+                    distinctDeliveries,
+                    tour.getVehicule());
+
+
         if (hasWarehouse && !ordered.isEmpty()) {
             double total = 0.0;
             double wLat = tour.getWarehouse().getGpsLat();
             double wLon = tour.getWarehouse().getGpsLong();
 
-            // Warehouse to first
             double dxStart = wLat - ordered.get(0).getGpsLat();
             double dyStart = wLon - ordered.get(0).getGpsLon();
             total += Math.sqrt(dxStart * dxStart + dyStart * dyStart);
 
-            // Between deliveries
             for (int i = 0; i < ordered.size() - 1; i++) {
                 double dx = ordered.get(i).getGpsLat() - ordered.get(i + 1).getGpsLat();
                 double dy = ordered.get(i).getGpsLon() - ordered.get(i + 1).getGpsLon();
                 total += Math.sqrt(dx * dx + dy * dy);
             }
 
-            // Last back to warehouse
             double dxEnd = ordered.get(ordered.size() - 1).getGpsLat() - wLat;
             double dyEnd = ordered.get(ordered.size() - 1).getGpsLon() - wLon;
             total += Math.sqrt(dxEnd * dxEnd + dyEnd * dyEnd);
@@ -295,7 +318,7 @@ public class TourService {
             return total;
         }
 
-        // Fallback if no warehouse
         return tourOptimizer.getTotalDistance(ordered);
     }
+
 }

@@ -41,4 +41,19 @@ public class TourController {
     public double getTotalDistance(@PathVariable long id) {
         return tourService.getTotalDistance(id);
     }
+
+    @PostMapping("/{id}/start")
+    public TourDTO startTour(@PathVariable long id) {
+        return tourService.start(id);
+    }
+
+    @PostMapping("/{id}/complete")
+    public TourDTO completeTour(@PathVariable long id) {
+        return tourService.complete(id);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public TourDTO cancelTour(@PathVariable long id) {
+        return tourService.cancel(id);
+    }
 }
